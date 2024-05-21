@@ -49,29 +49,57 @@ public final class CommandsImpl {
 		root.addChild(reset);
 
 		ArgumentCommandNode<ServerCommandSource, EntitySelector> player = CommandManager
-				.argument("player", EntityArgumentType.player()).executes(ctx -> {
+				.argument("player", EntityArgumentType.player())
+				.executes(ctx -> {
 					ServerPlayerEntity serverPlayerEntity = EntityArgumentType.getPlayer(ctx, "player");
-					PlayerData playerData = ExAPI.PLAYER_DATA.get(serverPlayerEntity);
-					playerData.reset(ExAPI.getConfig().resetOnDeath());
+					ExAPI.PLAYER_DATA.get(serverPlayerEntity).reset(0);
 					ctx.getSource().sendFeedback(
 							() -> Text.translatable("playerex.command.reset", serverPlayerEntity.getName()), false);
 
 					return 1;
 				}).build();
+
+		ArgumentCommandNode<ServerCommandSource, Integer> percentage = CommandManager
+				.argument("retain", IntegerArgumentType.integer(0, 100))
+				.executes(ctx -> {
+					int retained = IntegerArgumentType.getInteger(ctx, "retain");
+					ServerPlayerEntity serverPlayerEntity = EntityArgumentType.getPlayer(ctx, "player");
+					ExAPI.PLAYER_DATA.get(serverPlayerEntity).reset(retained);
+					ctx.getSource().sendFeedback(
+							() -> Text.translatable("playerex.command.reset", serverPlayerEntity.getName()).append(", %" + retained), false);
+					return 1;
+				}).build();
+
+		player.addChild(percentage);
 		reset.addChild(player);
 	}
 
 	private static void registerResetAll(CommandNode<ServerCommandSource> root) {
 		LiteralCommandNode<ServerCommandSource> reset = CommandManager.literal("reset_all").executes(ctx -> {
 			PlayerLookup.all(ctx.getSource().getServer()).forEach(player -> {
-				PlayerData playerData = ExAPI.PLAYER_DATA.get(player);
-				playerData.reset(ExAPI.getConfig().resetOnDeath());
+				ExAPI.PLAYER_DATA.get(player).reset(0);
 			});
 
 			ctx.getSource().sendFeedback(() -> Text.translatable("playerex.command.reset", "*"), false);
 
 			return 1;
 		}).build();
+
+		ArgumentCommandNode<ServerCommandSource, Integer> percentage = CommandManager
+				.argument("retain", IntegerArgumentType.integer(0, 100))
+				.executes(ctx -> {
+					int retained = IntegerArgumentType.getInteger(ctx, "retain");
+					PlayerLookup.all(ctx.getSource().getServer()).forEach(player -> {
+						ExAPI.PLAYER_DATA.get(player).reset(retained);
+					});
+
+					ctx.getSource().sendFeedback(() -> Text.translatable("playerex.command.reset", "*").append(", %" + retained), false);
+					
+					return 1;
+				}).build();
+
+		reset.addChild(percentage);
+
 		root.addChild(reset);
 	}
 
