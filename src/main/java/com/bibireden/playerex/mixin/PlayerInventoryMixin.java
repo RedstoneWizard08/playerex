@@ -18,7 +18,7 @@ public abstract class PlayerInventoryMixin {
 
     @ModifyReturnValue(method = "getBlockBreakingSpeed", at = @At("RETURN"))
     private float playerex$getBlockBreakingSpeed(float original) {
-        Optional<Double> maybeBreakingSpeed = DataAttributesAPI.INSTANCE.getValue(PlayerEXAttributes.BREAKING_SPEED, this.player);
+        Optional<Double> maybeBreakingSpeed = DataAttributesAPI.getValue(PlayerEXAttributes.BREAKING_SPEED, this.player);
         return maybeBreakingSpeed.map(v -> original + v.floatValue() - 1.0F).orElse(original);
     }
 }

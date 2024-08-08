@@ -4,6 +4,7 @@ import com.bibireden.data_attributes.api.util.Maths
 import com.bibireden.playerex.PlayerEX
 import com.bibireden.playerex.ext.level
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemStack
 import net.objecthunter.exp4j.Expression
 import net.objecthunter.exp4j.ExpressionBuilder
 import net.objecthunter.exp4j.function.Function
@@ -46,4 +47,12 @@ object PlayerEXUtil {
     /** todo: document, none evident on former, resolve if orElse is needed here, and if we can do nullable or not without drastically changing things */
     @JvmStatic
     fun getRequiredXpForNextLevel(player: PlayerEntity): Int = getRequiredXpForLevel(player, player.level + 1)
+
+    @JvmStatic
+    fun isBroken(stack: ItemStack): Boolean {
+        if (stack.nbt != null) {
+            return stack.nbt!!.getBoolean("broken")
+        }
+        return false;
+    }
 }

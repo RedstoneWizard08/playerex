@@ -1,15 +1,18 @@
 package com.bibireden.playerex.mixin;
 
 import com.bibireden.playerex.api.event.LivingEntityEvents;
+import com.bibireden.playerex.util.PlayerEXUtil;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
@@ -18,6 +21,14 @@ public abstract class LivingEntityMixin {
 
     @Unique
     private int playerex_ticks;
+
+    @Inject(method = "setCurrentHand(Lnet/minecraft/util/Hand;)V", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
+    public void preventAttack(Hand hand, CallbackInfo ci) {
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if (PlayerEXUtil.isBroken(entity.getStackInHand(hand))) {
+            ci.cancel();
+        }
+    }
 
     @ModifyVariable(method = "heal", at = @At("HEAD"), argsOnly = true)
     private float playerex$heal(float original) {
