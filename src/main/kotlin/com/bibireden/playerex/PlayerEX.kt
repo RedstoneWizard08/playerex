@@ -1,10 +1,14 @@
 package com.bibireden.playerex
 
+import com.bibireden.data_attributes.api.DataAttributesAPI
 import com.bibireden.data_attributes.api.attribute.EntityAttributeSupplier
 import com.bibireden.data_attributes.api.event.EntityAttributeModifiedEvents
-import com.bibireden.data_attributes.api.factory.DefaultAttributeFactory
+import com.bibireden.opc.api.OfflinePlayerCacheAPI
 import com.bibireden.playerex.api.PlayerEXAPI
-import com.bibireden.playerex.api.attribute.DefaultAttributeImpl
+import com.bibireden.playerex.api.PlayerEXCachedKeys
+import com.bibireden.playerex.api.PlayerEXCachedKeys.Level
+import com.bibireden.playerex.api.attribute.PlayerEXAttributes
+import com.bibireden.playerex.api.attribute.TradeSkillAttributes
 import com.bibireden.playerex.api.event.LivingEntityEvents
 import com.bibireden.playerex.api.event.PlayerEXSoundEvents
 import com.bibireden.playerex.api.event.PlayerEntityEvents
@@ -21,27 +25,31 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents
-import net.minecraft.entity.attribute.EntityAttributes
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.MathHelper
+import net.minecraft.core.Registry
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.ai.attributes.Attributes
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 object PlayerEX : ModInitializer {
 	const val MOD_ID: String = "playerex"
 
 	@JvmField
-	val LOGGER = LoggerFactory.getLogger(MOD_ID)
+	val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
 
 	@JvmField
 	val CONFIG = PlayerEXConfig.createAndLoad()
 
-	fun id(path: String) = Identifier.of(MOD_ID, path)!!
+	// this is literally here to initialize the singletons...
+	val PRIMARY_ATTRIBUTE_IDS = PlayerEXAttributes.PRIMARY_ATTRIBUTE_IDS
+	val TRADE_SKILL_IDS = TradeSkillAttributes.IDS
+
+	fun id(path: String) = ResourceLocation.tryBuild(MOD_ID, path)!!
 
 	private val gimmick = listOf(
 		"Let's do it right this time...",
-		"PlayerEX: Bringing leveling and attribute manipulation to your doorstep."
+		"We test in production (not really).",
 	).random()
 
 	override fun onInitialize() {
@@ -77,27 +85,29 @@ object PlayerEX : ModInitializer {
 
 		PlaceholderFactory.STORE.forEach(Placeholders::register)
 
-		Registry.register(Registries.SOUND_EVENT, PlayerEXSoundEvents.LEVEL_UP_SOUND.id, PlayerEXSoundEvents.LEVEL_UP_SOUND)
-		Registry.register(Registries.SOUND_EVENT, PlayerEXSoundEvents.SPEND_SOUND.id, PlayerEXSoundEvents.SPEND_SOUND)
-		Registry.register(Registries.SOUND_EVENT, PlayerEXSoundEvents.REFUND_SOUND.id, PlayerEXSoundEvents.REFUND_SOUND)
-
-		DefaultAttributeFactory.registerOverrides(DefaultAttributeImpl.OVERRIDES)
-		DefaultAttributeFactory.registerFunctions(DefaultAttributeImpl.FUNCTIONS)
-		DefaultAttributeFactory.registerEntityTypes(DefaultAttributeImpl.ENTITY_TYPES)
+		Registry.register(BuiltInRegistries.SOUND_EVENT, PlayerEXSoundEvents.LEVEL_UP_SOUND.location, PlayerEXSoundEvents.LEVEL_UP_SOUND)
+		Registry.register(BuiltInRegistries.SOUND_EVENT, PlayerEXSoundEvents.SPEND_SOUND.location, PlayerEXSoundEvents.SPEND_SOUND)
+		Registry.register(BuiltInRegistries.SOUND_EVENT, PlayerEXSoundEvents.REFUND_SOUND.location, PlayerEXSoundEvents.REFUND_SOUND)
 
 		EntityAttributeModifiedEvents.MODIFIED.register { attribute, entity, _, _, _ ->
-			if (entity?.world == null) return@register // no entity & no world, skip
+			if (entity?.level() == null) return@register // no entity & no world, skip
 
-			if (!entity.world.isClient) {
-				if (attribute == EntityAttributes.GENERIC_MAX_HEALTH) {
-					entity.health = attribute.clamp(entity.health.toDouble()).toFloat()
+			if (!entity.level().isClientSide()) {
+				if (attribute == Attributes.MAX_HEALTH) {
+					entity.health = attribute.sanitizeValue(entity.health.toDouble()).toFloat()
 				}
 				else if (attribute == AdditionalEntityAttributes.LUNG_CAPACITY) {
-					entity.air = attribute.clamp(entity.air.toDouble()).toInt()
+					entity.airSupply = attribute.sanitizeValue(entity.airSupply.toDouble()).toInt()
 				}
 			}
 		}
 
 		LOGGER.info(gimmick)
+	}
+
+	init {
+		OfflinePlayerCacheAPI.register(PlayerEXCachedKeys.LEVEL_KEY, Level::class.java, Level.CODEC) {
+			Level(DataAttributesAPI.getValue(PlayerEXAttributes.LEVEL, it).map(Double::toInt).orElse(0))
+		}
 	}
 }
