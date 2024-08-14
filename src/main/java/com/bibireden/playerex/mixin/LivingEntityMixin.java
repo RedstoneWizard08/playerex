@@ -16,8 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
-    @Unique
-    final private int TICKS_UNTIL_RESET = 20;
 
     @Unique
     private int playerex_ticks;
@@ -43,7 +41,8 @@ public abstract class LivingEntityMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void playerex$tick(CallbackInfo ci) {
-        if (this.playerex_ticks < this.TICKS_UNTIL_RESET) {
+        final int TICKS_UNTIL_RESET = 20;
+        if (this.playerex_ticks < TICKS_UNTIL_RESET) {
             this.playerex_ticks++;
         }
         else {
@@ -58,7 +57,6 @@ public abstract class LivingEntityMixin {
 
     @ModifyReturnValue(method = "hurt", at = @At("RETURN"))
     private boolean playerex$damage(boolean original, DamageSource source, float damage) {
-        boolean cancelled = LivingEntityEvents.SHOULD_DAMAGE.invoker().shouldDamage((LivingEntity) (Object) this, source, damage);
-        return cancelled && original;
+        return LivingEntityEvents.SHOULD_DAMAGE.invoker().shouldDamage((LivingEntity) (Object) this, source, damage);
     }
 }

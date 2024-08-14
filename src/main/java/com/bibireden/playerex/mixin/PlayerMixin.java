@@ -45,12 +45,12 @@ public abstract class PlayerMixin {
     }
 
     @ModifyVariable(method = "attack", at = @At("STORE"), name = "bl3", ordinal = 2)
-    private boolean playerex_attack(boolean bl3, Entity target) {
+    private boolean playerex$attack(boolean bl3, Entity target) {
         return PlayerEntityEvents.SHOULD_CRITICAL.invoker().shouldCritical((Player)(Object) this, target, bl3);
     }
 
     @ModifyVariable(method = "attack", at = @At(value = "STORE", ordinal = 2), name = "f", ordinal = 0)
-    private float playerex_attack(float f, Entity target) {
+    private float playerex$attack(float f, Entity target) {
         return PlayerEntityEvents.ON_CRITICAL.invoker().onCriticalDamage((Player) (Object) this, target, f);
     }
 }
