@@ -4,6 +4,7 @@ import com.bibireden.data_attributes.api.item.ItemFields;
 import com.bibireden.playerex.PlayerEX;
 import com.bibireden.playerex.config.PlayerEXConfigModel;
 import com.bibireden.playerex.util.PlayerEXUtil;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.ChatFormatting;
@@ -94,6 +95,17 @@ abstract class ItemStackMixin {
             tag.putBoolean("broken", false);
             stack.setTag(tag);
         }
+    }
+
+    @Inject(method = "getAttributeModifiers(Lnet/minecraft/world/entity/EquipmentSlot;)Lcom/google/common/collect/Multimap;", at = @At(value = "RETURN"), cancellable = true)
+    public void preventArmour(EquipmentSlot slot, CallbackInfoReturnable<Multimap<Attribute, AttributeModifier>> cir) {
+        ItemStack stack = (ItemStack)(Object)this;
+        HashMultimap<Attribute, AttributeModifier> hashmap = HashMultimap.create(cir.getReturnValue());
+        if (PlayerEXUtil.isBroken(stack)) {
+            PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR);
+            PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR_TOUGHNESS);
+        }
+        cir.setReturnValue(hashmap);
     }
 
     @Unique

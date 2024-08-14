@@ -3,6 +3,9 @@ package com.bibireden.playerex.util
 import com.bibireden.data_attributes.api.util.Maths
 import com.bibireden.playerex.PlayerEX
 import com.bibireden.playerex.ext.level
+import com.google.common.collect.Multimap
+import net.minecraft.world.entity.ai.attributes.Attribute
+import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.objecthunter.exp4j.Expression
@@ -55,5 +58,17 @@ object PlayerEXUtil {
             return stack.tag!!.getBoolean("broken")
         }
         return false
+    }
+
+    @JvmStatic
+    /** Removes an [Attribute], [AttributeModifier] pair from the provided [Multimap] **/
+    fun removeModifier(multimap: Multimap<Attribute, AttributeModifier>, attribute: Attribute) {
+        val optional = multimap[attribute].stream().findFirst()
+        if (optional.isPresent) {
+            val modifier = optional.get()
+            val newModifier = AttributeModifier(modifier.id, modifier.name, 0.0, modifier.operation)
+            multimap.remove(attribute, modifier)
+            multimap.put(attribute, newModifier)
+        }
     }
 }
