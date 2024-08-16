@@ -207,4 +207,20 @@ abstract class ItemStackMixin {
                         Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.RED)
         );
     }
+
+    @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 0, shift = At.Shift.AFTER))
+    private void playerex$insertBrokenTooltip(
+            Player player, TooltipFlag context,
+            CallbackInfoReturnable<List<Component>> info,
+            @Local List<Component> list
+    ) {
+        ItemStack itemStack = (ItemStack) (Object) this;
+        if (PlayerEXUtil.isBroken(itemStack)) {
+            list.add(
+                    Component.translatable("playerex.broken")
+                            .withStyle(ChatFormatting.RED)
+                            .withStyle(ChatFormatting.BOLD)
+            );
+        }
+    }
 }
