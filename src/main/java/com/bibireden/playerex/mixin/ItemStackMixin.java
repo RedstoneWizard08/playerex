@@ -104,6 +104,9 @@ abstract class ItemStackMixin {
         if (PlayerEXUtil.isBroken(stack)) {
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR);
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR_TOUGHNESS);
+            PlayerEXUtil.removeModifier(hashmap, Attributes.KNOCKBACK_RESISTANCE);
+            PlayerEXUtil.removeModifier(hashmap, Attributes.ATTACK_DAMAGE);
+            PlayerEXUtil.removeModifier(hashmap, Attributes.ATTACK_SPEED);
         }
         cir.setReturnValue(hashmap);
     }
