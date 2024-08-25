@@ -2,6 +2,7 @@ package com.bibireden.playerex.mixin;
 
 import com.bibireden.data_attributes.api.item.ItemFields;
 import com.bibireden.playerex.PlayerEX;
+import com.bibireden.playerex.api.PlayerEXTags;
 import com.bibireden.playerex.config.PlayerEXConfigModel;
 import com.bibireden.playerex.util.PlayerEXUtil;
 import com.google.common.collect.HashMultimap;
@@ -76,8 +77,7 @@ abstract class ItemStackMixin {
     @Inject(method = "hurtAndBreak(ILnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getItem()Lnet/minecraft/world/item/Item;"), cancellable = true)
     public <T extends LivingEntity> void preventBreak(int amount, T entity, Consumer<T> onBroken, CallbackInfo ci) {
         ItemStack stack = (ItemStack)(Object)this;
-        // TODO: If "unbreakable" item, maybe use a tag?
-        if (true) {
+        if (stack.getItem().builtInRegistryHolder().is(PlayerEXTags.UNBREAKABLE_ITEMS)) {
             if (!PlayerEXUtil.isBroken(stack)) {
                 CompoundTag tag = stack.getTag();
                 tag.putBoolean("broken", true);
