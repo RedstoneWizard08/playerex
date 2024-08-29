@@ -54,7 +54,7 @@ class PlayerEXConfigModel {
 
     @Sync(SyncMode.OVERRIDE_CLIENT)
     @JvmField
-    var itemBreakingEnabled: Boolean = false
+    var itemBreakingEnabled: Boolean = true
 
     @Sync(SyncMode.OVERRIDE_CLIENT)
     @JvmField
