@@ -1,5 +1,6 @@
 package com.bibireden.playerex.mixin;
 
+import com.bibireden.playerex.PlayerEX;
 import com.bibireden.playerex.api.event.PlayerEntityEvents;
 import com.bibireden.playerex.util.PlayerEXUtil;
 import net.minecraft.core.BlockPos;
@@ -21,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class PlayerMixin {
     @Inject(method = "attack(Lnet/minecraft/world/entity/Entity;)V", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
     public void preventAttack(Entity target, CallbackInfo ci) {
+        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+
         Player player = (Player)(Object)this;
         // TODO: BetterCombat compat
         if (PlayerEXUtil.isBroken(player.getMainHandItem())) {
@@ -30,6 +33,8 @@ public abstract class PlayerMixin {
 
     @Inject(method = "interactOn(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
     public void preventInteract(Entity entityToInteractOn, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+
         Player player = (Player)(Object)this;
         if (PlayerEXUtil.isBroken(player.getItemInHand(hand))) {
             cir.setReturnValue(InteractionResult.FAIL);
@@ -38,6 +43,8 @@ public abstract class PlayerMixin {
 
     @Inject(method = "blockActionRestricted(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/GameType;)Z", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
     public void preventBreakBlock(Level level, BlockPos pos, GameType gameMode, CallbackInfoReturnable<Boolean> cir) {
+        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+
         Player player = (Player)(Object)this;
         if (PlayerEXUtil.isBroken(player.getMainHandItem())) {
             cir.setReturnValue(true);

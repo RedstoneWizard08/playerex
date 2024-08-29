@@ -1,5 +1,6 @@
 package com.bibireden.playerex.mixin;
 
+import com.bibireden.playerex.PlayerEX;
 import com.bibireden.playerex.api.event.LivingEntityEvents;
 import com.bibireden.playerex.util.PlayerEXUtil;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -22,6 +23,8 @@ public abstract class LivingEntityMixin {
 
     @Inject(method = "startUsingItem(Lnet/minecraft/world/InteractionHand;)V", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
     public void preventAttack(InteractionHand hand, CallbackInfo ci) {
+        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+
         LivingEntity entity = (LivingEntity)(Object)this;
         if (PlayerEXUtil.isBroken(entity.getItemInHand(hand))) {
             ci.cancel();
