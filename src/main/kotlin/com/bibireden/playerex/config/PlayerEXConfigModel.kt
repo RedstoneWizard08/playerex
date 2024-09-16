@@ -84,5 +84,15 @@ class PlayerEXConfigModel {
     @JvmField
     var expNegationFactor: Int = 95
 
+    data class WeaponLevelingSettings(
+        @JvmField
+        var maxLevel: Int = 500,
+
+        @JvmField
+        var damagePerLevel: Double = 0.1,
+    )
+
+    @JvmField @Nest var weaponLevelingSettings = WeaponLevelingSettings()
+
     enum class Tooltip { Default, Vanilla, PlayerEX }
 }

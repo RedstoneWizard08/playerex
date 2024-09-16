@@ -1,13 +1,18 @@
 package com.bibireden.playerex.mixin;
 
 import com.bibireden.data_attributes.api.item.ItemFields;
+import com.bibireden.data_attributes.endec.nbt.NbtDeserializer;
+import com.bibireden.data_attributes.endec.nbt.NbtSerializer;
 import com.bibireden.playerex.PlayerEX;
 import com.bibireden.playerex.api.PlayerEXTags;
+import com.bibireden.playerex.api.items.ItemWithAttributes;
+import com.bibireden.playerex.api.items.WeaponItem;
 import com.bibireden.playerex.config.PlayerEXConfigModel;
 import com.bibireden.playerex.util.PlayerEXUtil;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.sugar.Local;
+import io.wispforest.endec.Endec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -19,15 +24,13 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,22 +42,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
-abstract class ItemStackMixin {
+abstract class ItemStackMixin implements WeaponItem, ItemWithAttributes {
+    @Unique
+    private static final Endec<HashMap<String, Double>> ATTRIBUTES_CODEC = Endec.DOUBLE.mapOf().xmap(HashMap::new, Map::copyOf);
+
+    @Unique
+    private static final String ATTRIBUTES_KEY = "playerex$attributes";
+
+    @Unique
+    private HashMap<String, Double> playerex$attributes;
+
     @Shadow
     public abstract boolean hurt(int amount, RandomSource random, @Nullable ServerPlayer serverPlayer);
+
+    @Shadow
+    public abstract CompoundTag getOrCreateTag();
 
     @Inject(method = "use(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResultHolder;", at = @At(value = "HEAD"), cancellable = true)
     public void preventUse(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
         if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
 
-        ItemStack stack = (ItemStack)(Object)this;
+        ItemStack stack = (ItemStack) (Object) this;
         if (PlayerEXUtil.isBroken(stack)) {
             cir.setReturnValue(InteractionResultHolder.fail(stack));
         }
@@ -64,7 +76,7 @@ abstract class ItemStackMixin {
     public void preventUseOnBlock(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
         if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
 
-        ItemStack stack = (ItemStack)(Object)this;
+        ItemStack stack = (ItemStack) (Object) this;
         if (PlayerEXUtil.isBroken(stack)) {
             cir.setReturnValue(InteractionResult.FAIL);
         }
@@ -74,7 +86,7 @@ abstract class ItemStackMixin {
     public void preventDamage(int amount, RandomSource random, ServerPlayer user, CallbackInfoReturnable<Boolean> cir) {
         if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
 
-        ItemStack stack = (ItemStack)(Object)this;
+        ItemStack stack = (ItemStack) (Object) this;
         if (PlayerEXUtil.isBroken(stack)) {
             cir.setReturnValue(true);
         }
@@ -84,10 +96,11 @@ abstract class ItemStackMixin {
     public <T extends LivingEntity> void preventBreak(int amount, T entity, Consumer<T> onBroken, CallbackInfo ci) {
         if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
 
-        ItemStack stack = (ItemStack)(Object)this;
-        if (stack.getItem().builtInRegistryHolder().is(PlayerEXTags.UNBREAKABLE_ITEMS)) {
+        ItemStack stack = (ItemStack) (Object) this;
+        if (stack.getItemHolder().is(PlayerEXTags.UNBREAKABLE_ITEMS)) {
             if (!PlayerEXUtil.isBroken(stack)) {
                 CompoundTag tag = stack.getTag();
+                assert tag != null;
                 tag.putBoolean("broken", true);
                 stack.setTag(tag);
             }
@@ -99,9 +112,10 @@ abstract class ItemStackMixin {
     public void removeBrokenOnRepair(int damage, CallbackInfo ci) {
         if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
 
-        ItemStack stack = (ItemStack)(Object)this;
+        ItemStack stack = (ItemStack) (Object) this;
         if (PlayerEXUtil.isBroken(stack) && damage < stack.getDamageValue()) {
             CompoundTag tag = stack.getTag();
+            assert tag != null;
             tag.putBoolean("broken", false);
             stack.setTag(tag);
         }
@@ -111,7 +125,7 @@ abstract class ItemStackMixin {
     public void preventArmour(EquipmentSlot slot, CallbackInfoReturnable<Multimap<Attribute, AttributeModifier>> cir) {
         if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
 
-        ItemStack stack = (ItemStack)(Object)this;
+        ItemStack stack = (ItemStack) (Object) this;
         HashMultimap<Attribute, AttributeModifier> hashmap = HashMultimap.create(cir.getReturnValue());
         if (PlayerEXUtil.isBroken(stack)) {
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR);
@@ -142,7 +156,8 @@ abstract class ItemStackMixin {
 
     @Unique
     private String playerex$value(double e, Map.Entry<Attribute, AttributeModifier> entry, AttributeModifier modifier) {
-        if (modifier.getOperation() != AttributeModifier.Operation.ADDITION) return ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(e);
+        if (modifier.getOperation() != AttributeModifier.Operation.ADDITION)
+            return ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(e);
         return ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(e);
     }
 
@@ -167,7 +182,9 @@ abstract class ItemStackMixin {
     }
 
     @ModifyVariable(method = "getTooltipLines", at = @At(value = "STORE", ordinal = 1), ordinal = 1)
-    private double playerex$modifyAdditionAttributeKnockback(double original) { return original / 10.0; }
+    private double playerex$modifyAdditionAttributeKnockback(double original) {
+        return original / 10.0;
+    }
 
     // todo: not sure about the implementation(s) here...
     @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 7, shift = At.Shift.AFTER))
@@ -237,5 +254,39 @@ abstract class ItemStackMixin {
                             .withStyle(ChatFormatting.BOLD)
             );
         }
+    }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Unique
+    @Override
+    public boolean isWeapon() {
+        return ((ItemStack) (Object) this).is(PlayerEXTags.WEAPONS);
+    }
+
+    @Inject(method = "save", at = @At("RETURN"))
+    private void playerex$insertAttributesMap(CompoundTag compoundTag, CallbackInfoReturnable<CompoundTag> cir) {
+        compoundTag.put(ATTRIBUTES_KEY, ATTRIBUTES_CODEC.encodeFully(NbtSerializer::of, playerex$attributes));
+    }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public double getAttributeValue(@NotNull RangedAttribute attr) {
+        if (playerex$attributes == null) {
+            CompoundTag tag = getOrCreateTag();
+            playerex$attributes = tag.contains(ATTRIBUTES_KEY) ? ATTRIBUTES_CODEC.decodeFully(NbtDeserializer::of, tag.get(ATTRIBUTES_KEY)) : new HashMap<>();
+        }
+
+        return playerex$attributes.computeIfAbsent(attr.getDescriptionId(), s -> attr.getDefaultValue());
+    }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public void setAttributeValue(@NotNull RangedAttribute attr, double value) {
+        if (playerex$attributes == null) {
+            CompoundTag tag = getOrCreateTag();
+            playerex$attributes = tag.contains(ATTRIBUTES_KEY) ? ATTRIBUTES_CODEC.decodeFully(NbtDeserializer::of, tag.get(ATTRIBUTES_KEY)) : new HashMap<>();
+        }
+
+        playerex$attributes.put(attr.getDescriptionId(), value);
     }
 }
