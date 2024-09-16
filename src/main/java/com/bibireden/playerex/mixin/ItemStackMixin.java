@@ -100,7 +100,6 @@ abstract class ItemStackMixin implements WeaponItem, ItemWithAttributes {
         if (stack.getItemHolder().is(PlayerEXTags.UNBREAKABLE_ITEMS)) {
             if (!PlayerEXUtil.isBroken(stack)) {
                 CompoundTag tag = stack.getTag();
-                assert tag != null;
                 tag.putBoolean("broken", true);
                 stack.setTag(tag);
             }
@@ -115,7 +114,6 @@ abstract class ItemStackMixin implements WeaponItem, ItemWithAttributes {
         ItemStack stack = (ItemStack) (Object) this;
         if (PlayerEXUtil.isBroken(stack) && damage < stack.getDamageValue()) {
             CompoundTag tag = stack.getTag();
-            assert tag != null;
             tag.putBoolean("broken", false);
             stack.setTag(tag);
         }
@@ -156,8 +154,7 @@ abstract class ItemStackMixin implements WeaponItem, ItemWithAttributes {
 
     @Unique
     private String playerex$value(double e, Map.Entry<Attribute, AttributeModifier> entry, AttributeModifier modifier) {
-        if (modifier.getOperation() != AttributeModifier.Operation.ADDITION)
-            return ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(e);
+        if (modifier.getOperation() != AttributeModifier.Operation.ADDITION) return ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(e);
         return ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(e);
     }
 
