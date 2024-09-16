@@ -86,10 +86,25 @@ class PlayerEXConfigModel {
 
     data class WeaponLevelingSettings(
         @JvmField
+        var enabled: Boolean = true,
+
+        @JvmField
         var maxLevel: Int = 500,
 
         @JvmField
         var damagePerLevel: Double = 0.1,
+
+        @JvmField
+        var xpFromPassive: Int = 10,
+
+        @JvmField
+        var xpFromHostile: Int = 20,
+
+        @JvmField
+        var xpFromMiniboss: Int = 50,
+
+        @JvmField
+        var xpFromBoss: Int = 100,
     )
 
     @JvmField @Nest var weaponLevelingSettings = WeaponLevelingSettings()

@@ -75,9 +75,6 @@ object PlayerEXAttributes {
     @JvmField
     val RANGED_CRITICAL_DAMAGE = register("ranged_crit_damage", 0.0, 0.0, 1_000_000.0)
 
-    @JvmField
-    val EXPERIENCE = register("experience", 0.0, 0.0, 1_000_000_000_000.0)
-
     @ApiStatus.Internal
     fun register(path: String, base: Double, min: Double, max: Double): RangedAttribute {
         val attribute = RangedAttribute("attribute.name.${PlayerEX.MOD_ID}.$path", base, min, max)

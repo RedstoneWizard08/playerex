@@ -2,6 +2,7 @@ package com.bibireden.playerex.util
 
 import com.bibireden.data_attributes.api.util.Maths
 import com.bibireden.playerex.PlayerEX
+import com.bibireden.playerex.api.PlayerEXTags
 import com.bibireden.playerex.ext.level
 import com.google.common.collect.Multimap
 import net.minecraft.world.entity.ai.attributes.Attribute
@@ -58,6 +59,11 @@ object PlayerEXUtil {
             return stack.tag!!.getBoolean("broken")
         }
         return false
+    }
+
+    @JvmStatic
+    fun isWeapon(stack: ItemStack): Boolean {
+        return stack.`is`(PlayerEXTags.WEAPONS)
     }
 
     @JvmStatic

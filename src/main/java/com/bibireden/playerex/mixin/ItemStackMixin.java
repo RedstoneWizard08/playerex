@@ -1,18 +1,13 @@
 package com.bibireden.playerex.mixin;
 
 import com.bibireden.data_attributes.api.item.ItemFields;
-import com.bibireden.data_attributes.endec.nbt.NbtDeserializer;
-import com.bibireden.data_attributes.endec.nbt.NbtSerializer;
 import com.bibireden.playerex.PlayerEX;
 import com.bibireden.playerex.api.PlayerEXTags;
-import com.bibireden.playerex.api.items.ItemWithAttributes;
-import com.bibireden.playerex.api.items.WeaponItem;
 import com.bibireden.playerex.config.PlayerEXConfigModel;
 import com.bibireden.playerex.util.PlayerEXUtil;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.sugar.Local;
-import io.wispforest.endec.Endec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -30,7 +25,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,16 +40,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
-abstract class ItemStackMixin implements WeaponItem, ItemWithAttributes {
-    @Unique
-    private static final Endec<HashMap<String, Double>> ATTRIBUTES_CODEC = Endec.DOUBLE.mapOf().xmap(HashMap::new, Map::copyOf);
-
-    @Unique
-    private static final String ATTRIBUTES_KEY = "playerex$attributes";
-
-    @Unique
-    private HashMap<String, Double> playerex$attributes;
-
+abstract class ItemStackMixin {
     @Shadow
     public abstract boolean hurt(int amount, RandomSource random, @Nullable ServerPlayer serverPlayer);
 
@@ -251,39 +236,5 @@ abstract class ItemStackMixin implements WeaponItem, ItemWithAttributes {
                             .withStyle(ChatFormatting.BOLD)
             );
         }
-    }
-
-    @SuppressWarnings("AddedMixinMembersNamePattern")
-    @Unique
-    @Override
-    public boolean isWeapon() {
-        return ((ItemStack) (Object) this).is(PlayerEXTags.WEAPONS);
-    }
-
-    @Inject(method = "save", at = @At("RETURN"))
-    private void playerex$insertAttributesMap(CompoundTag compoundTag, CallbackInfoReturnable<CompoundTag> cir) {
-        compoundTag.put(ATTRIBUTES_KEY, ATTRIBUTES_CODEC.encodeFully(NbtSerializer::of, playerex$attributes));
-    }
-
-    @SuppressWarnings("AddedMixinMembersNamePattern")
-    @Override
-    public double getAttributeValue(@NotNull RangedAttribute attr) {
-        if (playerex$attributes == null) {
-            CompoundTag tag = getOrCreateTag();
-            playerex$attributes = tag.contains(ATTRIBUTES_KEY) ? ATTRIBUTES_CODEC.decodeFully(NbtDeserializer::of, tag.get(ATTRIBUTES_KEY)) : new HashMap<>();
-        }
-
-        return playerex$attributes.computeIfAbsent(attr.getDescriptionId(), s -> attr.getDefaultValue());
-    }
-
-    @SuppressWarnings("AddedMixinMembersNamePattern")
-    @Override
-    public void setAttributeValue(@NotNull RangedAttribute attr, double value) {
-        if (playerex$attributes == null) {
-            CompoundTag tag = getOrCreateTag();
-            playerex$attributes = tag.contains(ATTRIBUTES_KEY) ? ATTRIBUTES_CODEC.decodeFully(NbtDeserializer::of, tag.get(ATTRIBUTES_KEY)) : new HashMap<>();
-        }
-
-        playerex$attributes.put(attr.getDescriptionId(), value);
     }
 }
