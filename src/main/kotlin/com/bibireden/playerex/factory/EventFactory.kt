@@ -121,31 +121,39 @@ object EventFactory {
         if (PlayerEX.CONFIG.weaponLevelingSettings.enabled) {
             when (entity) {
                 is Player -> {
-                    val item: ItemStack = entity.mainHandItem
-                    var xpToAdd = if (killedEntity.type.category.isFriendly) {
-                        PlayerEX.CONFIG.weaponLevelingSettings.xpFromPassive
-                    } else if (killedEntity.type.category == MobCategory.MONSTER) {
-                        if (killedEntity.type.`is`(ConventionalEntityTypeTags.BOSSES)) {
-                            PlayerEX.CONFIG.weaponLevelingSettings.xpFromBoss
+                    val mainHandItem: ItemStack = entity.mainHandItem
+
+                    if (PlayerEXUtil.isLevelable(mainHandItem)) {
+                        PlayerEXUtil.levelItem(mainHandItem, if (killedEntity.type.category.isFriendly) {
+                            PlayerEX.CONFIG.weaponLevelingSettings.xpFromPassive
+                        } else if (killedEntity.type.category == MobCategory.MONSTER) {
+                            if (killedEntity.type.`is`(ConventionalEntityTypeTags.BOSSES)) {
+                                PlayerEX.CONFIG.weaponLevelingSettings.xpFromBoss
+                            } else {
+                                PlayerEX.CONFIG.weaponLevelingSettings.xpFromHostile
+                            }
                         } else {
-                            PlayerEX.CONFIG.weaponLevelingSettings.xpFromHostile
-                        }
-                    } else {
-                        0
+                            0
+                        }, PlayerEX.CONFIG.weaponLevelingSettings.maxLevel)
                     }
 
-                    if (PlayerEXUtil.isWeapon(item)) {
-                        var nextLevel = PlayerEXUtil.getRequiredXpForNextLevel(item)
-                        item.xp += xpToAdd
-                        while (item.xp >= nextLevel && item.level < PlayerEX.CONFIG.weaponLevelingSettings.maxLevel) {
-                            item.xp -= nextLevel
-                            item.level += 1
-                            nextLevel = PlayerEXUtil.getRequiredXpForNextLevel(item)
+                    for (item in entity.armorSlots) {
+                        if (PlayerEXUtil.isLevelable(item)) {
+                            PlayerEXUtil.levelItem(item, if (killedEntity.type.category.isFriendly) {
+                                PlayerEX.CONFIG.armorLevelingSettings.xpFromPassive
+                            } else if (killedEntity.type.category == MobCategory.MONSTER) {
+                                if (killedEntity.type.`is`(ConventionalEntityTypeTags.BOSSES)) {
+                                    PlayerEX.CONFIG.armorLevelingSettings.xpFromBoss
+                                } else {
+                                    PlayerEX.CONFIG.armorLevelingSettings.xpFromHostile
+                                }
+                            } else {
+                                0
+                            }, PlayerEX.CONFIG.armorLevelingSettings.maxLevel)
                         }
                     }
                 }
             }
         }
     }
-
 }

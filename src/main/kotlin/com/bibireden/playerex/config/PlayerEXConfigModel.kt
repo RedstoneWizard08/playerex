@@ -120,5 +120,41 @@ class PlayerEXConfigModel {
 
     @JvmField @Nest var weaponLevelingSettings = WeaponLevelingSettings()
 
+    data class ArmorLevelingSettings(
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var enabled: Boolean = true,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var maxLevel: Int = 500,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var armorPerLevel: Double = 0.1,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromPassive: Int = 10,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromHostile: Int = 20,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromMiniboss: Int = 50,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromBoss: Int = 100,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var formula: String = "5x^(1.2)"
+    )
+
+    @JvmField @Nest var armorLevelingSettings = ArmorLevelingSettings()
+
     enum class Tooltip { Default, Vanilla, PlayerEX }
 }

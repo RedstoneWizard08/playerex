@@ -113,6 +113,9 @@ abstract class ItemStackMixin {
         if (PlayerEX.CONFIG.getWeaponLevelingSettings().getEnabled() && PlayerEXUtil.isWeapon(stack)) {
             PlayerEXUtil.addToModifier(hashmap, Attributes.ATTACK_DAMAGE, getLevel() * PlayerEX.CONFIG.getWeaponLevelingSettings().getDamagePerLevel());
         }
+        if (PlayerEX.CONFIG.getArmorLevelingSettings().getEnabled() && PlayerEXUtil.isArmor(stack)) {
+            PlayerEXUtil.addToModifier(hashmap, Attributes.ARMOR, getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getArmorPerLevel());
+        }
         if (PlayerEXUtil.isBroken(stack)) {
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR);
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR_TOUGHNESS);
@@ -260,8 +263,8 @@ abstract class ItemStackMixin {
             @Local List<Component> list
     ) {
         ItemStack itemStack = (ItemStack) (Object) this;
-        if (PlayerEXUtil.isWeapon(itemStack)) {
-            list.add(Component.translatable("playerex.item.level", getLevel(), PlayerEX.CONFIG.getWeaponLevelingSettings().getMaxLevel()));
+        if (PlayerEXUtil.isLevelable(itemStack)) {
+            list.add(Component.translatable("playerex.item.level", getLevel(), PlayerEXUtil.getMaxLevel(itemStack)));
             list.add(Component.translatable("playerex.item.experience", getXp(), PlayerEXUtil.getRequiredXpForNextLevel(itemStack)));
         }
     }

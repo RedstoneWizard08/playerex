@@ -11,4 +11,7 @@ object PlayerEXTags {
 
     @JvmField
     val WEAPONS: TagKey<Item> = TagKey.create(Registries.ITEM, PlayerEX.id("weapons"))
+
+    @JvmField
+    val ARMOR: TagKey<Item> = TagKey.create(Registries.ITEM, PlayerEX.id("armor"))
 }
