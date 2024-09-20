@@ -85,26 +85,37 @@ class PlayerEXConfigModel {
     var expNegationFactor: Int = 95
 
     data class WeaponLevelingSettings(
+        @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var enabled: Boolean = true,
 
+        @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var maxLevel: Int = 500,
 
+        @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var damagePerLevel: Double = 0.1,
 
+        @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var xpFromPassive: Int = 10,
 
+        @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var xpFromHostile: Int = 20,
 
+        @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var xpFromMiniboss: Int = 50,
 
+        @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var xpFromBoss: Int = 100,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var formula: String = "5x^(1.1)"
     )
 
     @JvmField @Nest var weaponLevelingSettings = WeaponLevelingSettings()

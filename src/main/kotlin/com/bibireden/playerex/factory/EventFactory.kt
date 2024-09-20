@@ -5,11 +5,12 @@ import com.bibireden.playerex.PlayerEX
 import com.bibireden.playerex.api.attribute.PlayerEXAttributes
 import com.bibireden.playerex.components.player.PlayerDataComponent
 import com.bibireden.playerex.ext.component
+import com.bibireden.playerex.ext.level
+import com.bibireden.playerex.ext.xp
 import com.bibireden.playerex.registry.DamageModificationRegistry
 import com.bibireden.playerex.util.PlayerEXUtil
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalEntityTypeTags
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.effect.MobEffects
@@ -121,9 +122,7 @@ object EventFactory {
             when (entity) {
                 is Player -> {
                     val item: ItemStack = entity.mainHandItem
-                    val tag: CompoundTag = item.orCreateTag
-                    val currentXp = tag.getInt("Experience")
-                    val xpToAdd = if (killedEntity.type.category.isFriendly) {
+                    var xpToAdd = if (killedEntity.type.category.isFriendly) {
                         PlayerEX.CONFIG.weaponLevelingSettings.xpFromPassive
                     } else if (killedEntity.type.category == MobCategory.MONSTER) {
                         if (killedEntity.type.`is`(ConventionalEntityTypeTags.BOSSES)) {
@@ -136,8 +135,13 @@ object EventFactory {
                     }
 
                     if (PlayerEXUtil.isWeapon(item)) {
-                        PlayerEX.LOGGER.info("Adding ${xpToAdd}xp to ${item.displayName.string}, totalling ${currentXp + xpToAdd}")
-                        tag.putInt("Experience", currentXp + xpToAdd)
+                        var nextLevel = PlayerEXUtil.getRequiredXpForNextLevel(item)
+                        item.xp += xpToAdd
+                        while (item.xp >= nextLevel && item.level < PlayerEX.CONFIG.weaponLevelingSettings.maxLevel) {
+                            item.xp -= nextLevel
+                            item.level += 1
+                            nextLevel = PlayerEXUtil.getRequiredXpForNextLevel(item)
+                        }
                     }
                 }
             }

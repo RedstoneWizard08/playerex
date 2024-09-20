@@ -105,11 +105,14 @@ abstract class ItemStackMixin {
     }
 
     @Inject(method = "getAttributeModifiers(Lnet/minecraft/world/entity/EquipmentSlot;)Lcom/google/common/collect/Multimap;", at = @At(value = "RETURN"), cancellable = true)
-    public void preventArmour(EquipmentSlot slot, CallbackInfoReturnable<Multimap<Attribute, AttributeModifier>> cir) {
+    public void modifyAttributeModifiers(EquipmentSlot slot, CallbackInfoReturnable<Multimap<Attribute, AttributeModifier>> cir) {
         if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
 
         ItemStack stack = (ItemStack) (Object) this;
         HashMultimap<Attribute, AttributeModifier> hashmap = HashMultimap.create(cir.getReturnValue());
+        if (PlayerEX.CONFIG.getWeaponLevelingSettings().getEnabled() && PlayerEXUtil.isWeapon(stack)) {
+            PlayerEXUtil.addToModifier(hashmap, Attributes.ATTACK_DAMAGE, getLevel() * PlayerEX.CONFIG.getWeaponLevelingSettings().getDamagePerLevel());
+        }
         if (PlayerEXUtil.isBroken(stack)) {
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR);
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR_TOUGHNESS);
@@ -235,6 +238,31 @@ abstract class ItemStackMixin {
                             .withStyle(ChatFormatting.RED)
                             .withStyle(ChatFormatting.BOLD)
             );
+        }
+    }
+
+    @Unique
+    private int getLevel() {
+        ItemStack itemStack = (ItemStack) (Object) this;
+        return itemStack.getOrCreateTag().getInt("Level");
+    }
+
+    @Unique
+    private int getXp() {
+        ItemStack itemStack = (ItemStack) (Object) this;
+        return itemStack.getOrCreateTag().getInt("Experience");
+    }
+
+    @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 0, shift = At.Shift.AFTER))
+    private void playerex$insertLevelTooltip(
+            Player player, TooltipFlag context,
+            CallbackInfoReturnable<List<Component>> info,
+            @Local List<Component> list
+    ) {
+        ItemStack itemStack = (ItemStack) (Object) this;
+        if (PlayerEXUtil.isWeapon(itemStack)) {
+            list.add(Component.translatable("playerex.item.level", getLevel(), PlayerEX.CONFIG.getWeaponLevelingSettings().getMaxLevel()));
+            list.add(Component.translatable("playerex.item.experience", getXp(), PlayerEXUtil.getRequiredXpForNextLevel(itemStack)));
         }
     }
 }

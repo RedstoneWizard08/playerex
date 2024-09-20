@@ -4,6 +4,7 @@ import com.bibireden.data_attributes.api.util.Maths
 import com.bibireden.playerex.PlayerEX
 import com.bibireden.playerex.api.PlayerEXTags
 import com.bibireden.playerex.ext.level
+import com.bibireden.playerex.ext.xp
 import com.google.common.collect.Multimap
 import net.minecraft.world.entity.ai.attributes.Attribute
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -34,6 +35,14 @@ object PlayerEXUtil {
         return ExpressionBuilder(PlayerEX.CONFIG.levelFormula).variable(VARIABLE).function(STAIRCASE_FUNCTION).build()
     }
 
+    private val itemExpression: Expression
+        get() = createItemExpression()
+
+    @JvmStatic
+    private fun createItemExpression(): Expression {
+        return ExpressionBuilder(PlayerEX.CONFIG.weaponLevelingSettings.formula).variable(VARIABLE).build()
+    }
+
     @JvmStatic
     /** Computes the experience cost of the provided level. */
     fun getRequiredXpForLevel(player: Player, target: Double): Int {
@@ -52,6 +61,19 @@ object PlayerEXUtil {
     /** todo: document, none evident on former, resolve if orElse is needed here, and if we can do nullable or not without drastically changing things */
     @JvmStatic
     fun getRequiredXpForNextLevel(player: Player): Int = getRequiredXpForLevel(player, player.level + 1)
+
+    @JvmStatic
+    fun getRequiredXpForLevel(item: ItemStack, target: Int): Int {
+        if (target <= item.level) return 0
+        var acc = 0
+        for (x in item.level+1..target) {
+            acc += abs(round(itemExpression.setVariable(VARIABLE, (x).toDouble()).evaluate())).toInt()
+        }
+        return acc
+    }
+
+    @JvmStatic
+    fun getRequiredXpForNextLevel(item: ItemStack): Int = getRequiredXpForLevel(item, item.level + 1)
 
     @JvmStatic
     fun isBroken(stack: ItemStack): Boolean {
@@ -73,6 +95,18 @@ object PlayerEXUtil {
         if (optional.isPresent) {
             val modifier = optional.get()
             val newModifier = AttributeModifier(modifier.id, modifier.name, 0.0, modifier.operation)
+            multimap.remove(attribute, modifier)
+            multimap.put(attribute, newModifier)
+        }
+    }
+
+    @JvmStatic
+    /** Adds a [Double] to the value of an [AttributeModifier] from the provided [Multimap] **/
+    fun addToModifier(multimap: Multimap<Attribute, AttributeModifier>, attribute: Attribute, amount: Double) {
+        val optional = multimap[attribute].stream().findFirst()
+        if (optional.isPresent) {
+            val modifier = optional.get()
+            val newModifier = AttributeModifier(modifier.id, modifier.name, modifier.amount + amount, modifier.operation)
             multimap.remove(attribute, modifier)
             multimap.put(attribute, newModifier)
         }
