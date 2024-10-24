@@ -77,17 +77,17 @@
     "playerex.broken": "Broken",
 
     "playerex.item.level": [
-        {"text": "Level: "},
-        {"index": 0},
-        {"text": "/"},
-        {"index": 1}
+        {"text": "Level: ", "color": "#6EBAE5"},
+        {"index": 0, "color": "gold"},
+        {"text": "/", "color": "gold"},
+        {"index": 1, "color": "gold"}
     ],
 
     "playerex.item.experience": [
-        {"text": "Exp: "},
-        {"index": 0},
-        {"text": "/"},
-        {"index": 1}
+        {"text": "Exp: ", "color": "#6EBAE5"},
+        {"index": 0, "color": "gold"},
+        {"text": "/", "color": "gold"},
+        {"index": 1, "color": "gold"}
     ],
 
     "playerex.command.reset_chunk": "Reset experience negation factor for chunk at %s",
