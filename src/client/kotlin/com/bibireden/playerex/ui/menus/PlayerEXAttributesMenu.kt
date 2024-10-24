@@ -100,7 +100,7 @@ class PlayerEXAttributesMenu : MenuComponent(algorithm = Algorithm.HORIZONTAL) {
             Sizing.fill(100),
             Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
                 child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content(2)).apply {
-                    child(Components.label(Component.translatable("playerex.ui.category.skills")))
+                    child(Components.label(Component.translatable("playerex.ui.category.attributes")))
                     child(
                         Components.textBox(Sizing.fixed(27))
                             .text("1")
