@@ -52,7 +52,7 @@ abstract class ItemStackMixin {
 
     @Inject(method = "use(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResultHolder;", at = @At(value = "HEAD"), cancellable = true)
     public void preventUse(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
-        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+        if (!PlayerEX.CONFIG.getFeatureSettings().getItemBreakingEnabled()) return;
 
         ItemStack stack = (ItemStack)(Object)this;
         if (PlayerEXUtil.isBroken(stack)) {
@@ -62,7 +62,7 @@ abstract class ItemStackMixin {
 
     @Inject(method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", at = @At(value = "HEAD"), cancellable = true)
     public void preventUseOnBlock(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
-        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+        if (!PlayerEX.CONFIG.getFeatureSettings().getItemBreakingEnabled()) return;
 
         ItemStack stack = (ItemStack)(Object)this;
         if (PlayerEXUtil.isBroken(stack)) {
@@ -72,7 +72,7 @@ abstract class ItemStackMixin {
 
     @Inject(method = "hurt(ILnet/minecraft/util/RandomSource;Lnet/minecraft/server/level/ServerPlayer;)Z", at = @At(value = "HEAD"), cancellable = true)
     public void preventDamage(int amount, RandomSource random, ServerPlayer user, CallbackInfoReturnable<Boolean> cir) {
-        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+        if (!PlayerEX.CONFIG.getFeatureSettings().getItemBreakingEnabled()) return;
 
         ItemStack stack = (ItemStack)(Object)this;
         if (PlayerEXUtil.isBroken(stack)) {
@@ -82,7 +82,7 @@ abstract class ItemStackMixin {
 
     @Inject(method = "hurtAndBreak(ILnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getItem()Lnet/minecraft/world/item/Item;"), cancellable = true)
     public <T extends LivingEntity> void preventBreak(int amount, T entity, Consumer<T> onBroken, CallbackInfo ci) {
-        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+        if (!PlayerEX.CONFIG.getFeatureSettings().getItemBreakingEnabled()) return;
 
         ItemStack stack = (ItemStack)(Object)this;
         if (stack.getItem().builtInRegistryHolder().is(PlayerEXTags.UNBREAKABLE_ITEMS)) {
@@ -97,7 +97,7 @@ abstract class ItemStackMixin {
 
     @Inject(method = "setDamageValue(I)V", at = @At(value = "HEAD"))
     public void removeBrokenOnRepair(int damage, CallbackInfo ci) {
-        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+        if (!PlayerEX.CONFIG.getFeatureSettings().getItemBreakingEnabled()) return;
 
         ItemStack stack = (ItemStack)(Object)this;
         if (PlayerEXUtil.isBroken(stack) && damage < stack.getDamageValue()) {
@@ -109,7 +109,7 @@ abstract class ItemStackMixin {
 
     @Inject(method = "getAttributeModifiers(Lnet/minecraft/world/entity/EquipmentSlot;)Lcom/google/common/collect/Multimap;", at = @At(value = "RETURN"), cancellable = true)
     public void preventArmour(EquipmentSlot slot, CallbackInfoReturnable<Multimap<Attribute, AttributeModifier>> cir) {
-        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+        if (!PlayerEX.CONFIG.getFeatureSettings().getItemBreakingEnabled()) return;
 
         ItemStack stack = (ItemStack)(Object)this;
         HashMultimap<Attribute, AttributeModifier> hashmap = HashMultimap.create(cir.getReturnValue());
@@ -125,7 +125,7 @@ abstract class ItemStackMixin {
 
     @Unique
     private double playerex$modifyValue(double val, @Nullable Player player, Attribute attribute, UUID uuid) {
-        if (player == null || PlayerEX.CONFIG.getTooltip() == PlayerEXConfigModel.Tooltip.Default) return val;
+        if (player == null || PlayerEX.CONFIG.getVisualSettings().getTooltip() == PlayerEXConfigModel.Tooltip.Default) return val;
 
         double valSubBase = val - player.getAttributeBaseValue(attribute);
 
@@ -137,7 +137,7 @@ abstract class ItemStackMixin {
 
         if (modifier != null) value -= modifier.getAmount();
 
-        return PlayerEX.CONFIG.getTooltip() == PlayerEXConfigModel.Tooltip.Vanilla ? valSubBase : value;
+        return PlayerEX.CONFIG.getVisualSettings().getTooltip() == PlayerEXConfigModel.Tooltip.Vanilla ? valSubBase : value;
     }
 
     @Unique
@@ -158,12 +158,12 @@ abstract class ItemStackMixin {
 
     @ModifyVariable(method = "getTooltipLines", at = @At(value = "STORE", ordinal = 1), ordinal = 0)
     private boolean playerex$flagAttackDamage(boolean original) {
-        return PlayerEX.CONFIG.getTooltip() != PlayerEXConfigModel.Tooltip.Vanilla && original;
+        return PlayerEX.CONFIG.getVisualSettings().getTooltip() != PlayerEXConfigModel.Tooltip.Vanilla && original;
     }
 
     @ModifyVariable(method = "getTooltipLines", at = @At(value = "STORE", ordinal = 2), ordinal = 0)
     private boolean playerex$flagAttackSpeed(boolean original) {
-        return PlayerEX.CONFIG.getTooltip() != PlayerEXConfigModel.Tooltip.Vanilla && original;
+        return PlayerEX.CONFIG.getVisualSettings().getTooltip() != PlayerEXConfigModel.Tooltip.Vanilla && original;
     }
 
     @ModifyVariable(method = "getTooltipLines", at = @At(value = "STORE", ordinal = 1), ordinal = 1)

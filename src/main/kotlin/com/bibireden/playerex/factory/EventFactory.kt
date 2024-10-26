@@ -18,7 +18,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow
 object EventFactory {
     fun reset(oldPlayer: ServerPlayer, newPlayer: ServerPlayer, isAlive: Boolean)
     {
-        val factor = if (PlayerEX.CONFIG.resetOnDeath) 0 else 100
+        val factor = if (PlayerEX.CONFIG.featureSettings.resetOnDeath) 0 else 100
         // attempt reconciliation
         (oldPlayer.component as PlayerDataComponent).modifiers.forEach { (rl, value) ->
             val attr = BuiltInRegistries.ATTRIBUTE[rl] ?: return@forEach
