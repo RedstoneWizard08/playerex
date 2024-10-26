@@ -21,9 +21,12 @@ public abstract class LivingEntityMixin {
     @Unique
     private int playerex_ticks;
 
+    @Unique
+    final int ON_EVERY_SECOND_TICKS = 20;
+
     @Inject(method = "startUsingItem(Lnet/minecraft/world/InteractionHand;)V", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
     public void preventAttack(InteractionHand hand, CallbackInfo ci) {
-        if (!PlayerEX.CONFIG.getItemBreakingEnabled()) return;
+        if (!PlayerEX.CONFIG.getFeatureSettings().getItemBreakingEnabled()) return;
 
         LivingEntity entity = (LivingEntity)(Object)this;
         if (PlayerEXUtil.isBroken(entity.getItemInHand(hand))) {
@@ -44,14 +47,14 @@ public abstract class LivingEntityMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void playerex$tick(CallbackInfo ci) {
-        final int TICKS_UNTIL_RESET = 20;
-        if (this.playerex_ticks < TICKS_UNTIL_RESET) {
+        if (this.playerex_ticks < ON_EVERY_SECOND_TICKS) {
             this.playerex_ticks++;
         }
         else {
             LivingEntityEvents.ON_EVERY_SECOND.invoker().onEverySecond((LivingEntity) (Object) this);
             this.playerex_ticks = 0;
         }
+        LivingEntityEvents.ON_TICK.invoker().onTick((LivingEntity) (Object) this);
     }
 
     @ModifyVariable(method = "hurt", at = @At("HEAD"), ordinal = 0, argsOnly = true)

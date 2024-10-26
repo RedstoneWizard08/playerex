@@ -12,6 +12,8 @@ import com.bibireden.playerex.api.event.LivingEntityEvents
 import com.bibireden.playerex.api.event.PlayerEXSoundEvents
 import com.bibireden.playerex.api.event.PlayerEntityEvents
 import com.bibireden.playerex.config.PlayerEXConfig
+import com.bibireden.playerex.config.PlayerEXConfigModel
+import com.bibireden.playerex.config.PlayerEXConfigModel.Lifecycle
 import com.bibireden.playerex.ext.component
 import com.bibireden.playerex.factory.*
 import com.bibireden.playerex.networking.NetworkingChannels
@@ -69,7 +71,14 @@ object PlayerEX : ModInitializer {
 		ServerPlayerEvents.COPY_FROM.register(EventFactory::reset)
 
 		LivingEntityEvents.ON_HEAL.register(EventFactory::healed)
-		LivingEntityEvents.ON_EVERY_SECOND.register(EventFactory::healthRegeneration)
+
+		if (CONFIG.lifecycleSettings.healthRegeneration == Lifecycle.ON_EVERY_SECOND) {
+			LivingEntityEvents.ON_EVERY_SECOND.register(EventFactory::healthRegeneration)
+		}
+		else {
+			LivingEntityEvents.ON_TICK.register(EventFactory::healthRegeneration)
+		}
+		
 		LivingEntityEvents.ON_DAMAGE.register(EventFactory::onDamage)
 		LivingEntityEvents.SHOULD_DAMAGE.register(EventFactory::shouldDamage)
 
