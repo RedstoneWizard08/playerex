@@ -32,7 +32,7 @@ object PlayerEXUtil {
 
     @JvmStatic
     private fun createExpression(): Expression {
-        return ExpressionBuilder(PlayerEX.CONFIG.levelFormula).variable(VARIABLE).function(STAIRCASE_FUNCTION).build()
+        return ExpressionBuilder(PlayerEX.CONFIG.levelingSettings.levelFormula).variable(VARIABLE).function(STAIRCASE_FUNCTION).build()
     }
 
     private val weaponExpression: Expression
