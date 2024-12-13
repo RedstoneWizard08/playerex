@@ -65,6 +65,7 @@
     "attribute.name.playerex.wither_resistance": "Wither Resistance",
     "attribute.name.playerex.breaking_speed": "Breaking Speed",
     "attribute.name.playerex.focus": "Focus",
+    "attribute.name.playerex.percent_damage_reduction": "% Damage Reduction",
 
     "attribute.name.playerex.mining": "Mining",
     "attribute.name.playerex.enchanting": "Enchanting",
@@ -88,6 +89,11 @@
         {"index": 0, "color": "gold"},
         {"text": "/", "color": "gold"},
         {"index": 1, "color": "gold"}
+    ],
+
+    "playerex.item.reduction": [
+        {"index": 0, "color": "blue"},
+        {"text": "% Damage Reduction", "color": "blue"}
     ],
 
     "playerex.command.reset_chunk": "Reset experience negation factor for chunk at %s",
@@ -228,12 +234,10 @@
     "text.config.playerex-config.option.armorLevelingSettings.enabled": "Activated",
     "text.config.playerex-config.option.armorLevelingSettings.armorPerLevel": "Armor per Level",
     "text.config.playerex-config.option.armorLevelingSettings.reductionPerLevel": "% Damage Reduction per Level",
-    "text.config.playerex-config.option.armorLevelingSettings.maxReduction": "Maximum % Damage Reduction",
     "text.config.playerex-config.option.armorLevelingSettings.formula": "XP Formula",
     "text.config.playerex-config.option.armorLevelingSettings.xpFromPassive": "XP from Passive Mobs",
     "text.config.playerex-config.option.armorLevelingSettings.xpFromHostile": "XP from Hostile Mobs",
     "text.config.playerex-config.option.armorLevelingSettings.xpFromMiniboss": "XP from Minibosses (unused)",
     "text.config.playerex-config.option.armorLevelingSettings.xpFromBoss": "XP from Bosses",
-    "text.config.playerex-config.option.armorLevelingSettings.maxLevel": "Maximum Level",
-    "text.config.playerex-config.option.armorLevelingSettings.reduction": "Damage Reduction"
+    "text.config.playerex-config.option.armorLevelingSettings.maxLevel": "Maximum Level"
 }

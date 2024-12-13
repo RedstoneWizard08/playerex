@@ -83,7 +83,7 @@ abstract class ItemStackMixin {
         ItemStack stack = (ItemStack) (Object) this;
         if (stack.getItemHolder().is(PlayerEXTags.UNBREAKABLE_ITEMS)) {
             if (!PlayerEXUtil.isBroken(stack)) {
-                CompoundTag tag = stack.getTag();
+                CompoundTag tag = stack.getOrCreateTag();
                 tag.putBoolean("broken", true);
                 stack.setTag(tag);
             }
@@ -97,7 +97,7 @@ abstract class ItemStackMixin {
 
         ItemStack stack = (ItemStack) (Object) this;
         if (PlayerEXUtil.isBroken(stack) && damage < stack.getDamageValue()) {
-            CompoundTag tag = stack.getTag();
+            CompoundTag tag = stack.getOrCreateTag();
             tag.putBoolean("broken", false);
             stack.setTag(tag);
         }
@@ -114,8 +114,6 @@ abstract class ItemStackMixin {
         }
         if (PlayerEX.CONFIG.getArmorLevelingSettings().getEnabled() && PlayerEXUtil.isArmor(stack)) {
             PlayerEXUtil.addToModifier(hashmap, Attributes.ARMOR, getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getArmorPerLevel());
-            // TODO: % Damage reduction
-            //            PlayerEXUtil.addToModifier(hashmap, , getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getStatPerLevel());
         }
         if (PlayerEXUtil.isBroken(stack)) {
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR);
@@ -257,6 +255,11 @@ abstract class ItemStackMixin {
         return itemStack.getOrCreateTag().getInt("Experience");
     }
 
+    @Unique
+    private double getReduction() {
+        return Math.min(getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getReductionPerLevel(), 25d);
+    }
+
     @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 0, shift = At.Shift.AFTER))
     private void playerex$insertLevelTooltip(
             Player player, TooltipFlag context,
@@ -267,6 +270,18 @@ abstract class ItemStackMixin {
         if (PlayerEXUtil.isLevelable(itemStack)) {
             list.add(Component.translatable("playerex.item.level", getLevel(), PlayerEXUtil.getMaxLevel(itemStack)));
             list.add(Component.translatable("playerex.item.experience", getXp(), PlayerEXUtil.getRequiredXpForNextLevel(itemStack)));
+        }
+    }
+
+    @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 6, shift = At.Shift.AFTER))
+    private void playerex$insertReductionTooltip(
+            Player player, TooltipFlag context,
+            CallbackInfoReturnable<List<Component>> info,
+            @Local List<Component> list
+    ) {
+        ItemStack itemStack = (ItemStack) (Object) this;
+        if (PlayerEXUtil.isArmor(itemStack)) {
+            list.add(Component.translatable("playerex.item.reduction", getReduction()));
         }
     }
 }
