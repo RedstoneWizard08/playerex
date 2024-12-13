@@ -212,6 +212,7 @@
     "text.config.playerex-config.category.soundSettings": "Sound Options",
     "text.config.playerex-config.option.soundSettings.levelUpVolume": "Level Up Volume",
     "text.config.playerex-config.option.soundSettings.skillUpVolume": "Skill Up Volume",
+    "text.config.playerex-config.option.soundSettings.refundVolume": "Refund Volume",
 
     "text.config.playerex-config.category.weaponLevelingSettings": "Weapon Leveling",
     "text.config.playerex-config.option.weaponLevelingSettings.enabled": "Activated",
