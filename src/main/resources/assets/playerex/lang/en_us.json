@@ -203,5 +203,28 @@
     "text.config.playerex-config.option.restorativeForceMultiplier": "Restorative Force Multiplier",
     "text.config.playerex-config.option.expNegationFactor": "Experience Negation Factor",
 
-    "text.config.playerex-config.option.disableUI": "Disable UI"
+    "text.config.playerex-config.option.disableUI": "Disable UI",
+
+    "text.config.playerex-config.category.weaponLevelingSettings": "Weapon Leveling",
+    "text.config.playerex-config.option.weaponLevelingSettings.enabled": "Activated",
+    "text.config.playerex-config.option.weaponLevelingSettings.damagePerLevel": "Attack Damage per Level",
+    "text.config.playerex-config.option.weaponLevelingSettings.formula": "XP Formula",
+    "text.config.playerex-config.option.weaponLevelingSettings.xpFromPassive": "XP from Passive Mobs",
+    "text.config.playerex-config.option.weaponLevelingSettings.xpFromHostile": "XP from Hostile Mobs",
+    "text.config.playerex-config.option.weaponLevelingSettings.xpFromMiniboss": "XP from Minibosses (unused)",
+    "text.config.playerex-config.option.weaponLevelingSettings.xpFromBoss": "XP from Bosses",
+    "text.config.playerex-config.option.weaponLevelingSettings.maxLevel": "Maximum Level",
+
+    "text.config.playerex-config.category.armorLevelingSettings": "Armor Leveling",
+    "text.config.playerex-config.option.armorLevelingSettings.enabled": "Activated",
+    "text.config.playerex-config.option.armorLevelingSettings.armorPerLevel": "Armor per Level",
+    "text.config.playerex-config.option.armorLevelingSettings.reductionPerLevel": "% Damage Reduction per Level",
+    "text.config.playerex-config.option.armorLevelingSettings.maxReduction": "Maximum % Damage Reduction",
+    "text.config.playerex-config.option.armorLevelingSettings.formula": "XP Formula",
+    "text.config.playerex-config.option.armorLevelingSettings.xpFromPassive": "XP from Passive Mobs",
+    "text.config.playerex-config.option.armorLevelingSettings.xpFromHostile": "XP from Hostile Mobs",
+    "text.config.playerex-config.option.armorLevelingSettings.xpFromMiniboss": "XP from Minibosses (unused)",
+    "text.config.playerex-config.option.armorLevelingSettings.xpFromBoss": "XP from Bosses",
+    "text.config.playerex-config.option.armorLevelingSettings.maxLevel": "Maximum Level",
+    "text.config.playerex-config.option.armorLevelingSettings.reduction": "Damage Reduction"
 }

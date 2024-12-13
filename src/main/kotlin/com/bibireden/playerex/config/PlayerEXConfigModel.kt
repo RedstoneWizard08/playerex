@@ -84,50 +84,10 @@ class PlayerEXConfigModel {
     @JvmField
     var expNegationFactor: Int = 95
 
-    data class WeaponLevelingSettings(
+    data class ArmorXpSettings(
         @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
         var enabled: Boolean = true,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var maxLevel: Int = 500,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var damagePerLevel: Double = 0.1,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var xpFromPassive: Int = 10,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var xpFromHostile: Int = 20,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var xpFromMiniboss: Int = 50,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var xpFromBoss: Int = 100,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var formula: String = "5x^(1.1)"
-    )
-
-    @JvmField @Nest var weaponLevelingSettings = WeaponLevelingSettings()
-
-    data class ArmorLevelingSettings(
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var enabled: Boolean = true,
-
-        @Sync(SyncMode.OVERRIDE_CLIENT)
-        @JvmField
-        var maxLevel: Int = 500,
 
         @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
@@ -135,6 +95,18 @@ class PlayerEXConfigModel {
 
         @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
+        var reductionPerLevel: Double = 1.0,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var maxReduction: Double = 1.0,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var formula: String = "5x^(1.1)",
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
         var xpFromPassive: Int = 10,
 
         @Sync(SyncMode.OVERRIDE_CLIENT)
@@ -151,10 +123,45 @@ class PlayerEXConfigModel {
 
         @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
-        var formula: String = "5x^(1.2)"
+        var maxLevel: Int = 500,
     )
 
-    @JvmField @Nest var armorLevelingSettings = ArmorLevelingSettings()
+    data class WeaponXpSettings(
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var enabled: Boolean = true,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var damagePerLevel: Double = 0.1,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var formula: String = "5x^(1.1)",
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromPassive: Int = 10,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromHostile: Int = 20,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromMiniboss: Int = 50,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var xpFromBoss: Int = 100,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
+        var maxLevel: Int = 500,
+    )
+
+    @JvmField @Nest var weaponLevelingSettings = WeaponXpSettings()
+    @JvmField @Nest var armorLevelingSettings = ArmorXpSettings()
 
     enum class Tooltip { Default, Vanilla, PlayerEX }
 }

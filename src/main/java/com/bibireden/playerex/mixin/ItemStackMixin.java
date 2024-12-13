@@ -115,6 +115,8 @@ abstract class ItemStackMixin {
         }
         if (PlayerEX.CONFIG.getArmorLevelingSettings().getEnabled() && PlayerEXUtil.isArmor(stack)) {
             PlayerEXUtil.addToModifier(hashmap, Attributes.ARMOR, getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getArmorPerLevel());
+            // TODO: % Damage reduction
+            //            PlayerEXUtil.addToModifier(hashmap, , getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getStatPerLevel());
         }
         if (PlayerEXUtil.isBroken(stack)) {
             PlayerEXUtil.removeModifier(hashmap, Attributes.ARMOR);
