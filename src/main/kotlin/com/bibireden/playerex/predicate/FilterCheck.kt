@@ -23,7 +23,6 @@ class FilterCheck : LootItemFunction {
         u: LootContext?
     ): ItemStack? {
 
-        // TODO: Random
         val num = when (u?.level?.dimension()) {
             Level.NETHER -> Random.nextInt(36, 71)
             Level.END -> Random.nextInt(71, 105)
