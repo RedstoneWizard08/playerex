@@ -257,7 +257,7 @@ abstract class ItemStackMixin {
 
     @Unique
     private double getReduction() {
-        return Math.min(getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getReductionPerLevel(), 25d);
+        return Math.min(getLevel() * PlayerEX.CONFIG.getArmorLevelingSettings().getReductionPerLevel(), PlayerEX.CONFIG.getArmorLevelingSettings().getMaxReduction());
     }
 
     @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 0, shift = At.Shift.AFTER))
@@ -281,7 +281,7 @@ abstract class ItemStackMixin {
     ) {
         ItemStack itemStack = (ItemStack) (Object) this;
         if (PlayerEXUtil.isArmor(itemStack)) {
-            list.add(Component.translatable("playerex.item.reduction", getReduction()));
+            list.add(Component.translatable("playerex.item.reduction", String.format("%.2f", getReduction())));
         }
     }
 }

@@ -6,11 +6,15 @@ import com.bibireden.playerex.api.attribute.PlayerEXAttributes
 import com.bibireden.playerex.components.player.PlayerDataComponent
 import com.bibireden.playerex.config.PlayerEXConfig
 import com.bibireden.playerex.ext.component
+import com.bibireden.playerex.predicate.FilterCheck
 import com.bibireden.playerex.registry.DamageModificationRegistry
 import com.bibireden.playerex.util.PlayerEXUtil
+import net.fabricmc.fabric.api.loot.v2.LootTableSource
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalEntityTypeTags
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.Entity
@@ -20,6 +24,8 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.AbstractArrow
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.storage.loot.LootDataManager
+import net.minecraft.world.level.storage.loot.LootTable
 
 object EventFactory {
     fun reset(oldPlayer: ServerPlayer, newPlayer: ServerPlayer, isAlive: Boolean)
@@ -164,6 +170,19 @@ object EventFactory {
             } else {
                 0
             }, maxLevel)
+        }
+    }
+
+    fun onModifyLootTable(
+        resourceManager: ResourceManager,
+        lootManager: LootDataManager,
+        id: ResourceLocation,
+        builder: LootTable.Builder,
+        source: LootTableSource
+    ) {
+
+        builder.apply {
+            FilterCheck()
         }
     }
 }

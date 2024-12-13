@@ -37,8 +37,12 @@ class PlayerEXConfigModel {
 
         @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
+        var reductionPerLevel: Double = 0.1,
+
+        @Sync(SyncMode.OVERRIDE_CLIENT)
+        @JvmField
         @RangeConstraint(min = 0.0, max = 25.0)
-        var reductionPerLevel: Double = 1.0,
+        var maxReduction: Double = 25.0,
 
         @Sync(SyncMode.OVERRIDE_CLIENT)
         @JvmField
